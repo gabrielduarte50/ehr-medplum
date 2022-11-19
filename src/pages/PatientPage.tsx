@@ -48,11 +48,11 @@ export const measurementsMeta: measurementsMetaType = {
   'calories-burned': {
     id: 'calories-burned',
     code: '41981-2',
-    title: 'Calories burned',
+    title: 'Calorias queimadas',
     description: 'Your Calories burned values',
     chartDatasets: [
       {
-        label: 'Calories burned',
+        label: 'Calorias queimadas',
         backgroundColor,
         borderColor,
       },
@@ -75,11 +75,11 @@ export const measurementsMeta: measurementsMetaType = {
   'heart-rate': {
     id: 'heart-rate',
     code: '8867-4',
-    title: 'Heart Rate',
+    title: 'Frequência Cardíaca',
     description: 'Your heart rate values',
     chartDatasets: [
       {
-        label: 'Heart Rate',
+        label: 'Frequência Cardíaca',
         backgroundColor,
         borderColor,
       },
@@ -102,7 +102,7 @@ export function PatientPage(): JSX.Element {
   
   const fetchData = async () => {
     try {
-        await getPatient("7079776").then(response =>{
+        await getPatient("7079769").then(response =>{
         setPatient(JSON.parse(response.data));
       });
     } catch (error) {
@@ -136,29 +136,16 @@ export function PatientPage(): JSX.Element {
   };
 
   function setChart(){ 
-    const labelsHeart = resObs.map(({ effectivePeriod, code
-    }) => {
-      if (effectivePeriod && (code?.coding?.at(0)?.code == '8867-4') ) {
-        return  getLocaleDate(effectivePeriod.start);
-      }
+    const labels = resObs.map(({ effectivePeriod}) => {
+       return  getLocaleDate(effectivePeriod?.end);
+    }).filter(function(elem, pos, self) {
+      return self.indexOf(elem) == pos;
     });
 
-    const labelsCalories = resObs.map(({ effectivePeriod, code
-    }) => {
-      if (effectivePeriod && (code?.coding?.at(0)?.code == '41981-2') ) {
-        return  getLocaleDate(effectivePeriod.start);
-      }
-    });
-
-    const labelsSteps = resObs.map(({ effectivePeriod, code
-    }) => {
-      if (effectivePeriod && (code?.coding?.at(0)?.code == '248263006') ) {
-        return  getLocaleDate(effectivePeriod.start);
-      }
-    });
+    console.log('labels', labels);
     
     setChartDataHeart({
-      labels : labelsHeart,
+      labels : labels,
       datasets: measurementsMeta['heart-rate' as string].chartDatasets.map((item, i) => ({
         ...item,
         data: getDatasets(measurementsMeta['heart-rate' as string].code, resObs), 
@@ -166,7 +153,7 @@ export function PatientPage(): JSX.Element {
     });
 
     setChartDataCalories({
-      labels :labelsCalories,
+      labels :labels,
       datasets: measurementsMeta['calories-burned' as string].chartDatasets.map((item, i) => ({
         ...item,
         data: getDatasets(measurementsMeta['calories-burned' as string].code, resObs), 
@@ -174,12 +161,14 @@ export function PatientPage(): JSX.Element {
     });
 
     setChartDataSteps({
-      labels : labelsSteps,
+      labels : labels,
       datasets: measurementsMeta['total-passos' as string].chartDatasets.map((item, i) => ({
         ...item,
         data: getDatasets(measurementsMeta['total-passos' as string].code, resObs), 
       })),
     });
+
+    console.log('dados', chartDataCalories, chartDataHeart, chartDataSteps);
   }
 
   const LineChart = React.lazy(() => import('../../src/pages/LineChart'));
@@ -192,13 +181,13 @@ return (
           <ResourceAvatar value={patient} />
           <ResourceName value={patient} />
         </div>
-        <h3>Name</h3>
+        <h3>Nome</h3>
         <div>{patient?.name?.[0].text}</div>
-        <h3>Birth Date</h3>
+        <h3>Data de nascimento</h3>
         <div>{patient?.birthDate}</div>
-        <h3>Gender</h3>
+        <h3>Gênero</h3>
         <div>{patient?.gender}</div>
-        <h3>Created Date:</h3> 
+        <h3>Data de Criação</h3> 
         <div>{patient?.meta?.lastUpdated}</div> 
         </Document>
       </div>
@@ -207,22 +196,22 @@ return (
     <section >
      <Document>
       <div>
-          <h3>Request Observation</h3>
-          <h4>Select the period to fetch the SmartBand data</h4>
-          <p>Initial date</p>
+          <h3>Observações</h3>
+          <h4>Selecione o período para obter dados de atividade física</h4>
+          <p>Data inicial</p>
           <DateTimeInput name="startDate" 
             onChange={(date) => {
                 let d = new Date(date).toISOString().slice(0, 10);
                 setStartDate(d);
               }}/>
-          <p>Final date</p>
+          <p>Data final</p>
           <DateTimeInput name="endDate"
             onChange={(date) => {
               let d = new Date(date).toISOString().slice(0, 10);
               setEndDate(d);
             }} />
           <>
-          <Button onClick={getObservationPatient}>Send observations</Button>
+          <Button onClick={getObservationPatient}>Obter dados</Button>
           </>
         </div>
       </Document>
@@ -230,15 +219,15 @@ return (
     <section className="patient-observation">
     {resObs && (
       <>
-          <h3>Heart Rate</h3>
+          <h3>Frequência Cardíaca</h3>
             <Suspense fallback={null}>
               <LineChart chartData={chartDataHeart} />
             </Suspense>
-            <h3>Calories Burned</h3>
+            <h3>Calorias Queimadas</h3>
             <Suspense fallback={null}>
               <LineChart chartData={chartDataCalories} />
             </Suspense>
-            <h3>Total de passos</h3>
+            <h3>Total de Passos</h3>
             <Suspense fallback={null}>
              <LineChart chartData={chartDataSteps} />
             </Suspense>

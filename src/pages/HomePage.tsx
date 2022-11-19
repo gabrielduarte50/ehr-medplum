@@ -32,8 +32,8 @@ export function HomePage(): JSX.Element {
 
   return (
     <Document>
-      <h1>Welcome {formatGivenName(profile.name?.[0] as HumanName)}</h1>
-      <h3>To view your patient's details, click on the name</h3>
+      <h1>Bem-vindo {formatGivenName(profile.name?.[0] as HumanName)}</h1>
+      <h3>Para ver os detalhes de atividade física, clique sobre o nome</h3>
       <h3>Patients</h3>
       <Link to={"/patient"} ><div>{patient?.name?.[0].text}</div></Link>
     </Document>
