@@ -48,11 +48,11 @@ export const measurementsMeta: measurementsMetaType = {
   'calories-burned': {
     id: 'calories-burned',
     code: '41981-2',
-    title: 'Calorias queimadas',
+    title: 'Calorias queimadas - (Kcal)',
     description: 'Your Calories burned values',
     chartDatasets: [
       {
-        label: 'Calorias queimadas',
+        label: 'Calorias queimadas em (kcal)',
         backgroundColor,
         borderColor,
       },
@@ -75,11 +75,11 @@ export const measurementsMeta: measurementsMetaType = {
   'heart-rate': {
     id: 'heart-rate',
     code: '8867-4',
-    title: 'Frequência Cardíaca',
+    title: 'Frequência Cardíaca - (/min)',
     description: 'Your heart rate values',
     chartDatasets: [
       {
-        label: 'Frequência Cardíaca',
+        label: 'Frequência cardíaca em (/min)',
         backgroundColor,
         borderColor,
       },
@@ -114,21 +114,19 @@ export function PatientPage(): JSX.Element {
   },[]);
 
   const getObservationPatient = async () => {
-    console.log(patient?.id);
     await getObservationByPeriod(patient?.id, startDate, endDate).then((value) => {
       setResObs(value.data.map((i: string) => JSON.parse(i)))}
     );
-    console.log(resObs);
+  
   }
 
   useEffect(() => {
     setChart();
-    console.log(resObs);
   },[resObs]);
  
-  const getDatasets = (index: string, measurements?: Observation[]): (number | undefined)[] => {
+  const getDatasets = (index: number, code: string, measurements?: Observation[]): (number | undefined)[] => {
     if (measurements) {
-      return measurements.filter(m => m.code?.coding?.at(0)?.code == index).map(({ valueQuantity }) =>
+      return measurements.filter(m => m.code?.coding?.at(0)?.code == code).map(({ valueQuantity }) =>
       valueQuantity?.value 
      );
     }
@@ -137,18 +135,16 @@ export function PatientPage(): JSX.Element {
 
   function setChart(){ 
     const labels = resObs.map(({ effectivePeriod}) => {
-       return  getLocaleDate(effectivePeriod?.end);
+       return  getLocaleDate(effectivePeriod?.start);
     }).filter(function(elem, pos, self) {
       return self.indexOf(elem) == pos;
     });
-
-    console.log('labels', labels);
     
     setChartDataHeart({
       labels : labels,
       datasets: measurementsMeta['heart-rate' as string].chartDatasets.map((item, i) => ({
         ...item,
-        data: getDatasets(measurementsMeta['heart-rate' as string].code, resObs), 
+        data: getDatasets(i, measurementsMeta['heart-rate' as string].code, resObs), 
       })),
     });
 
@@ -156,7 +152,7 @@ export function PatientPage(): JSX.Element {
       labels :labels,
       datasets: measurementsMeta['calories-burned' as string].chartDatasets.map((item, i) => ({
         ...item,
-        data: getDatasets(measurementsMeta['calories-burned' as string].code, resObs), 
+        data: getDatasets(i,measurementsMeta['calories-burned' as string].code, resObs), 
       })),
     });
 
@@ -164,11 +160,10 @@ export function PatientPage(): JSX.Element {
       labels : labels,
       datasets: measurementsMeta['total-passos' as string].chartDatasets.map((item, i) => ({
         ...item,
-        data: getDatasets(measurementsMeta['total-passos' as string].code, resObs), 
+        data: getDatasets(i,measurementsMeta['total-passos' as string].code, resObs), 
       })),
     });
 
-    console.log('dados', chartDataCalories, chartDataHeart, chartDataSteps);
   }
 
   const LineChart = React.lazy(() => import('../../src/pages/LineChart'));
