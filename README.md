@@ -3,13 +3,13 @@
 
 ## Getting Started
 
-First, install all the packages
+Primeiro, clone o repositório. Em seguida, rode o comando a seguir para instalar os pacotes necessários
 
 ```javascript
 npm install
 ```
 
-Next, run the app
+Depois, rode o comando para iniciar o app
 
 ```javascript
 npm run dev
