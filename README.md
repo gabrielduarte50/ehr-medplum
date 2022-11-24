@@ -15,4 +15,4 @@ Depois, rode o comando para iniciar o app
 npm run dev
 ```
 
-This app should run on `http://localhost:3000/`
+Esse app roda na porta web `http://localhost:3000/`
